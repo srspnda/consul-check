@@ -18,6 +18,16 @@ func init() {
 				Ui: ui,
 			}, nil
 		},
+		"memory": func() (cli.Command, error) {
+			return &command.MemoryCommand{
+				Ui: ui,
+			}, nil
+		},
+		"cpuload": func() (cli.Command, error) {
+			return &command.CpuloadCommand{
+				Ui: ui,
+			}, nil
+		},
 		"version": func() (cli.Command, error) {
 			return &command.VersionCommand{
 				Version: Version,

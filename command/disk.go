@@ -24,20 +24,16 @@ type DiskCommand struct {
 // Run is the function mapped to the DiskCommand implementation.
 // This is invoked upon calling `consul-check disk ...`
 func (d *DiskCommand) Run(args []string) int {
+	var warnLevel, critLevel int
+
 	cmdFlags := flag.NewFlagSet("disk", flag.ContinueOnError)
 	cmdFlags.Usage = func() { d.Ui.Output(d.Help()) }
+	cmdFlags.IntVar(&warnLevel, "warn", 85, "disk usage is level WARN")
+	cmdFlags.IntVar(&critLevel, "crit", 95, "disk usage is level CRIT")
 
-	var warning, failure int
-	cmdFlags.IntVar(&warning, "warning", 85, "disk check is warning")
-	cmdFlags.IntVar(&failure, "failure", 95, "disk check is failure")
-
-	// Set exitCode to 0 as default exit code. Set to 1 if something is
-	// greater than or equal to warning. Set to 2 if something is greater
-	// than or equal to critical.
-	var exitCode = 0
-
-	fsList := sigar.FileSystemList{}
-	fsList.Get()
+	if err := cmdFlags.Parse(args); err != nil {
+		return 0
+	}
 
 	fmt.Fprintf(
 		os.Stdout,
@@ -50,36 +46,35 @@ func (d *DiskCommand) Run(args []string) int {
 		"Mounted on",
 	)
 
+	fsList := sigar.FileSystemList{}
+	fsList.Get()
+
+	exitCode := 0
+
 	for _, fs := range fsList.List {
 		dirName := fs.DirName
 
-		usage := sigar.FileSystemUsage{}
-		usage.Get(dirName)
+		fsUsage := sigar.FileSystemUsage{}
+		fsUsage.Get(dirName)
 
-		used := int(usage.UsePercent())
+		usedPercent := fsUsage.UsePercent()
 
 		fmt.Fprintf(
 			os.Stdout,
 			outputFormat,
 			fs.DevName,
-			formatSize(usage.Total),
-			formatSize(usage.Used),
-			formatSize(usage.Avail),
-			sigar.FormatPercent(usage.UsePercent()),
+			formatSize(fsUsage.Total),
+			formatSize(fsUsage.Used),
+			formatSize(fsUsage.Avail),
+			sigar.FormatPercent(usedPercent),
 			dirName,
 		)
 
-		switch exitCode {
-		case 0:
-			if used >= critical {
-				exitCode = 2
-			} else if used >= warning {
-				exitCode = 1
-			}
-		case 1:
-			if used >= critical {
-				exitCode = 2
-			}
+		switch l := int(usedPercent); {
+		case l > critLevel:
+			exitCode = 2
+		case l > warnLevel:
+			exitCode = 1
 		}
 	}
 
@@ -95,10 +90,8 @@ Usage: consul-check disk <options>
 
 Options:
 
-  -warning=<level>   Percent usage for a disk check to be at level warning.
-                  This will return to Consul an exit code of 1.
-  -failure=<level>   Percent usage for a disk check to be at level failure.
-                  This will return to Consul an exit code of 2.
+  -warn=<level>   Percent disk usage for check to be WARN
+  -crit=<level>   Percent disk usage for check to be CRIT
 `
 
 	return strings.TrimSpace(helpText)
