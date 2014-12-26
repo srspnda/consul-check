@@ -70,10 +70,10 @@ func (d *DiskCommand) Run(args []string) int {
 			dirName,
 		)
 
-		switch l := int(usedPercent); {
-		case l > critLevel:
+		switch level := int(usedPercent); {
+		case level > critLevel:
 			exitCode = 2
-		case l > warnLevel:
+		case level > warnLevel && exitCode < 2:
 			exitCode = 1
 		}
 	}

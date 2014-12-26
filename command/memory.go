@@ -72,10 +72,10 @@ func (m *MemoryCommand) Run(args []string) int {
 	memUsed = format(mem.ActualUsed)
 	memFree = format(mem.ActualFree)
 
-	switch l := getPercentUtil(memUsed, memFree); {
-	case l > critLevel:
+	switch level := getPercentUtil(memUsed, memFree); {
+	case level > critLevel:
 		exitCode = 2
-	case l > warnLevel:
+	case level > warnLevel:
 		exitCode = 1
 	}
 

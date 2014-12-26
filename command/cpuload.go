@@ -55,10 +55,10 @@ func (c *CpuloadCommand) Run(args []string) int {
 
 	exitCode := 0
 
-	switch l := avg.One; {
-	case l > critLevel:
+	switch level := avg.One; {
+	case level > critLevel:
 		exitCode = 2
-	case l > warnLevel:
+	case level > warnLevel:
 		exitCode = 1
 	}
 
