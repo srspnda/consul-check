@@ -8,9 +8,9 @@
 with Consul. Consul is a distributed, highly available, and scalable tool for
 service discovery and configuration.
 
-## Documentation
+## Usage
 
-Comprehensive reading on check definitions is viewable at the Consul website:
+Documentation on check definitions is available at the Consul website:
 
 * [Checks](https://consul.io/docs/agent/checks.html)
 
@@ -27,24 +27,6 @@ This is the only convention that Consul depends on. The output of each script
 execution is captured and stored in the `notes` field, so that it can be viewed
 by a systems administrator.
 
-## Development
-
-The roadmap of this project is to build out at least `disk`, `memory`, and `load`
-subcommands. Exact specification of each has yet to be determined.
-
-A plugin system for various output channels is also planned. The plugin design
-should be a simple, well defined Go `interface` that allows for trivial
-implementation.
-
-## Credits
-
-* [mitchellh](https://github.com/mitchellh)
-* [armon](https://github.com/armon)
-* [cloudfoundry](https://github.com/cloudfoundry)
-
-Your open source contributions have been a great source of guidance, and
-inspiration in both style, and usability. Many thanks.
-
 ## Author
 
-* [Justin Poole](mailto://sdpnda@gmail.com)
+* [Justin Poole](mailto:sdpnda@gmail.com)
